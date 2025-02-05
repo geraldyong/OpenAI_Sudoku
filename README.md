@@ -1,6 +1,7 @@
 # OpenAI_Sudoku
 
 This repository contains code to create a Sudoku Solver microservice and UI.
+These code were generated using OpenAI o3-mini-high.
 
 Note: This code uses ChatGPT APIs.
 
