@@ -3,11 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ValidationError
 from typing import Dict, List, Optional
 import re
+import ssl
 
 app = FastAPI(
     title = "Sudoku Microservice",
     description = "API endpoints for interacting with a sudoku puzzle."
 )
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+ssl_context.load_cert_chain('certs/geraldyong-cert.pem', keyfile='certs/geraldyong-priv.pem')
 
 # Enable CORS
 app.add_middleware(

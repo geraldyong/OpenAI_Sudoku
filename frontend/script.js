@@ -5,7 +5,7 @@ let currentPuzzle = {}; // Latest puzzle JSON from backend
 let selectedCell = "";  // e.g., "R3C5"
 let startTime = null;
 let timerInterval = null;
-const BASE_URL = "http://localhost:8000";  // Adjust if needed
+const BASE_URL = "https://localhost:8000";  // Adjust if needed
 
 // History stacks for undo/redo
 let undoStack = [];

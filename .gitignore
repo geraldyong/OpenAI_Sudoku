@@ -1,6 +1,6 @@
 __pycache__
 .env
 backup/*
-certs/geraldyong-*.pem
+backend/certs/geraldyong-*.pem
 rebuild.sh
 prompts/*
