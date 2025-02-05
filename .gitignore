@@ -1,0 +1,6 @@
+__pycache__
+.env
+backup/*
+certs/geraldyong-*.pem
+rebuild.sh
+prompts/*
