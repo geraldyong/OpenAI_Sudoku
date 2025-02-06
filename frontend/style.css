@@ -1,19 +1,26 @@
-/* General styling */
+/* General styling with gradient background */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
   display: flex;
+  background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
 }
 
-/* Sidebar for timer and remaining digits */
+/* Sidebar styling */
 #sidebar {
-  width: 200px;
-  background: #f0f0f0;
-  padding: 15px;
+  width: 250px;
+  background: #fff;
+  padding: 20px;
   box-sizing: border-box;
   border-right: 2px solid #ccc;
   height: 100vh;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+#sidebar #sidebar-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 #timer {
   font-size: 20px;
@@ -33,15 +40,16 @@ body {
   border-radius: 4px;
   background: #fff;
   cursor: pointer;
+  transition: background 0.2s;
+}
+.tile:hover {
+  background-color: #cceeff;
 }
 
-/* Main container styling */
+/* Main content container */
 #main-container {
   flex-grow: 1;
   padding: 20px;
-}
-h1, h2 {
-  text-align: center;
 }
 
 /* Input panel styling */
@@ -78,12 +86,41 @@ h1, h2 {
   font-size: 16px;
 }
 
-/* Puzzle state grid styling with thicker block borders */
+/* Button row: all buttons on one horizontal line */
+#button-row {
+  text-align: center;
+  margin: 10px 0;
+}
+#button-row button {
+  margin: 0 5px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#button-row button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+#button-row button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+/* Puzzle state grid styling with grid references */
+/* The board is rendered as a 10x10 table:
+   - The first row and first column are header cells (with class .header-cell) that have no borders.
+   - The rest of the cells (<td>) show the puzzle values and have borders. */
 #puzzle-table {
   border-collapse: collapse;
   margin: 0 auto;
   cursor: pointer;
 }
+
+/* Style for board cells */
 #puzzle-table td {
   border: 1px solid #333;
   width: 60px;
@@ -94,6 +131,26 @@ h1, h2 {
   position: relative;
   transition: background 0.3s;
 }
+
+/* Style for header cells (both top row and left column) */
+#puzzle-table th.header-cell {
+  border: none;
+  background: none;
+  font-size: 12px;
+  padding: 5px;
+}
+
+/* Header row: first cell is empty; the rest (column headers) are bottom–aligned */
+#puzzle-table tr.header-row th.header-cell:not(:first-child) {
+  text-align: bottom;
+}
+
+/* Left column header cells (for rows) are right–aligned */
+#puzzle-table tr:not(.header-row) th.header-cell {
+  text-align: right;
+}
+
+/* 3x3 block borders for the board cells */
 #puzzle-table td.block-right {
   border-right: 3px solid #000;
 }
@@ -101,7 +158,7 @@ h1, h2 {
   border-bottom: 3px solid #000;
 }
 
-/* General hover and selection highlight classes */
+/* Hover and highlight styles for board cells */
 .highlight {
   background-color: yellow !important;
 }
@@ -111,13 +168,11 @@ h1, h2 {
 .same-digit-highlight {
   background-color: #d4f7d4 !important;
 }
-
-/* Classes for remaining-digit tile hover highlighting */
 .tile-solved-highlight {
-  background-color: #b3ffb3 !important; /* Light green for cells with solved digit */
+  background-color: #b3ffb3 !important;
 }
 .tile-candidate-highlight {
-  background-color: #ffffb3 !important; /* Light yellow for cells with digit as candidate */
+  background-color: #ffffb3 !important;
 }
 
 /* Modal styling */
@@ -140,6 +195,7 @@ h1, h2 {
   width: 300px;
   text-align: center;
   position: relative;
+  border-radius: 4px;
 }
 .close {
   position: absolute;
@@ -154,6 +210,14 @@ h1, h2 {
   padding: 8px 12px;
   font-size: 16px;
   cursor: pointer;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.candidate-button:hover {
+  background-color: #0056b3;
 }
 
 /* Utility classes */

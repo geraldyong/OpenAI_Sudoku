@@ -25,5 +25,5 @@ USER appuser
 EXPOSE 8000
 
 # Run the FastAPI app with Uvicorn.
-#CMD ["uvicorn", "sudoku_ms:app", "--host", "0.0.0.0", "--port", "8000"]
-CMD ["uvicorn", "sudoku_ms:app", "--host", "0.0.0.0", "--reload", "--ssl-keyfile", "certs/geraldyong-priv.pem", "--ssl-certfile", "certs/geraldyong-cert.pem"]
+CMD ["uvicorn", "sudoku_ms:app", "--host", "0.0.0.0", "--port", "8000"]
+#CMD ["uvicorn", "sudoku_ms:app", "--host", "0.0.0.0", "--reload", "--ssl-keyfile", "certs/geraldyong-priv.pem", "--ssl-certfile", "certs/geraldyong-cert.pem"]

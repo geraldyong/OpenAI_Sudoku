@@ -6,8 +6,9 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Sidebar with timer and remaining digits -->
+  <!-- Sidebar with title, timer, and remaining digits -->
   <div id="sidebar">
+    <h1 id="sidebar-title">Sudoku Solver</h1>
     <div id="timer">Time: 00:00:00</div>
     <div id="remaining-digits">
       <h3>Remaining</h3>
@@ -17,8 +18,6 @@
   
   <!-- Main content container -->
   <div id="main-container">
-    <h1>Sudoku Solver</h1>
-    
     <!-- Puzzle Input Section -->
     <div id="input-method">
       <h2>Enter Puzzle</h2>
@@ -48,21 +47,20 @@
       <input type="file" id="file-upload" accept=".txt">
     </div>
     
-    <div style="text-align: center; margin: 10px;">
+    <!-- Control buttons on one horizontal row -->
+    <div id="button-row">
       <button id="submit-puzzle">Submit Puzzle</button>
-    </div>
-    
-    <!-- New history controls -->
-    <div id="history-controls" style="text-align: center; margin: 10px;">
+      <!-- This new puzzle button is hidden until a puzzle is submitted -->
+      <button id="new-puzzle-btn" class="hidden">Submit New Puzzle</button>
       <button id="undo-btn" disabled>Undo</button>
       <button id="redo-btn" disabled>Redo</button>
     </div>
     
     <hr>
     
-    <!-- Puzzle display section -->
+    <!-- Puzzle display section with grid references -->
     <div id="puzzle-display">
-      <h2>Puzzle State</h2>
+      <!-- The "Puzzle State" heading has been removed -->
       <div id="puzzle-table-container"></div>
     </div>
     
