@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const radioButtons = document.getElementsByName("inputType");
   const manualTable = document.getElementById("manual-table");
   const submitButton = document.getElementById("submit-puzzle");
+  const submissionContainer = document.getElementById("submission-container");
+  const activeButtons = document.getElementById("active-buttons");
   const newPuzzleBtn = document.getElementById("new-puzzle-btn");
   const puzzleTableContainer = document.getElementById("puzzle-table-container");
   const messageDiv = document.getElementById("message");
@@ -34,8 +36,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const tilesDiv = document.getElementById("tiles");
   const undoBtn = document.getElementById("undo-btn");
   const redoBtn = document.getElementById("redo-btn");
+  const downloadJsonBtn = document.getElementById("download-json");
+  const downloadMdBtn = document.getElementById("download-md");
 
-  // Create manual input table (9x9) with thicker block borders
+  // Create manual input table (9x9)
   function createManualTable() {
     manualTable.innerHTML = "";
     for (let r = 1; r <= 9; r++) {
@@ -165,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // History management: push current state to undo stack and clear redo stack
+  // History management
   function pushState() {
     undoStack.push(JSON.parse(JSON.stringify(currentPuzzle)));
     redoStack = [];
@@ -235,13 +239,9 @@ document.addEventListener("DOMContentLoaded", function () {
       currentPuzzle = await candRes.json();
       renderPuzzle();
       messageDiv.textContent = "";
-      // Hide the submission pane and show the "Submit New Puzzle" button
-      let inputMethod = document.getElementById("input-method");
-      if (inputMethod) inputMethod.classList.add("hidden");
-      if (manualInputDiv) manualInputDiv.classList.add("hidden");
-      if (pasteInputDiv) pasteInputDiv.classList.add("hidden");
-      if (uploadInputDiv) uploadInputDiv.classList.add("hidden");
-      newPuzzleBtn.classList.remove("hidden");
+      // Hide submission container and show active buttons
+      if (submissionContainer) submissionContainer.classList.add("hidden");
+      if (activeButtons) activeButtons.classList.remove("hidden");
       startTimer();
       updateRemainingDigits();
       undoStack = [];
@@ -255,12 +255,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // New Puzzle button handler to reopen the submission pane
   newPuzzleBtn.addEventListener("click", () => {
     stopTimer();
-    let inputMethod = document.getElementById("input-method");
-    if (inputMethod) inputMethod.classList.remove("hidden");
-    if (manualInputDiv) manualInputDiv.classList.remove("hidden");
-    if (pasteInputDiv) pasteInputDiv.classList.add("hidden");
-    if (uploadInputDiv) uploadInputDiv.classList.add("hidden");
-    newPuzzleBtn.classList.add("hidden");
+    if (submissionContainer) submissionContainer.classList.remove("hidden");
+    if (activeButtons) activeButtons.classList.add("hidden");
     puzzleTableContainer.innerHTML = "";
     messageDiv.textContent = "";
   });
@@ -286,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     table.appendChild(headerRow);
 
-    // Create rows R1 to R9. Each row begins with a header cell (e.g. "R1") then 9 board cells.
+    // Create rows R1 to R9. Each row begins with a header cell (e.g., "R1") then 9 board cells.
     for (let r = 1; r <= 9; r++) {
       const row = document.createElement("tr");
       let rowHeader = document.createElement("th");
@@ -304,6 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cell.value !== null && cell.value !== undefined) {
           td.textContent = cell.value;
         } else if (cell.candidates && cell.candidates.length > 0) {
+          // Show candidate list (as comma separated) in the board
           let sorted = cell.candidates.slice().sort((a, b) => a - b);
           td.textContent = "{" + sorted.join(", ") + "}";
         } else {
@@ -467,8 +464,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Check if the puzzle is solved; if so, stop timer and display congratulatory message.
-  function checkSolved() {
+  // Check if the puzzle is solved; if so, stop the timer and display a congratulatory message.
+  // --- Check if Puzzle is Solved ---
+  async function checkSolved() {
     let solved = true;
     for (let r = 1; r <= 9; r++) {
       for (let c = 1; c <= 9; c++) {
@@ -481,12 +479,126 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       if (!solved) break;
     }
+
     if (solved) {
-      messageDiv.textContent = "Congratulations! The puzzle is solved!";
-      stopTimer();
+      try {
+        const response = await fetch(`${BASE_URL}/checkStrict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ puzzle: currentPuzzle })
+        });
+        const data = await response.json();
+        if (data.result) {
+          messageDiv.textContent = "Congratulations! The puzzle is solved!";
+          stopTimer();
+        } else {
+          messageDiv.textContent = "Puzzle appears solved but strict consistency check failed.";
+        }
+      } catch (error) {
+        messageDiv.textContent = "Error in consistency check: " + error.message;
+      }
     } else {
       messageDiv.textContent = "";
     }
+  }
+
+  // Download functionality
+  function downloadFile(filename, content, type) {
+    let blob = new Blob([content], { type: type });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Generate Markdown representation without candidate lists (empty cells as "_")
+  function generateMarkdown() {
+    let lines = [];
+    for (let r = 1; r <= 9; r++) {
+      let row = [];
+      for (let c = 1; c <= 9; c++) {
+        let key = `R${r}C${c}`;
+        let cell = currentPuzzle[key];
+        let val = (cell && cell.value != null) ? cell.value : "_";
+        row.push(val);
+      }
+      let rowStr = row.slice(0, 3).join(" ") + " | " + row.slice(3, 6).join(" ") + " | " + row.slice(6).join(" ");
+      lines.push(rowStr);
+      if (r === 3 || r === 6) {
+        lines.push("---------------------");
+      }
+    }
+    return lines.join("\n");
+  }
+
+  // Download JSON button event listener
+  downloadJsonBtn.addEventListener("click", () => {
+    let jsonStr = JSON.stringify(currentPuzzle, null, 2);
+    downloadFile("sudoku.json", jsonStr, "application/json");
+  });
+
+  // Download Markdown button event listener
+  downloadMdBtn.addEventListener("click", () => {
+    let mdStr = generateMarkdown();
+    downloadFile("sudoku.md", mdStr, "text/markdown");
+  });
+
+  // Render puzzle state as a table with header row and column
+  function renderPuzzle() {
+    puzzleTableContainer.innerHTML = "";
+    const table = document.createElement("table");
+    table.id = "puzzle-table";
+
+    // Create header row: first empty header cell, then column headers (C1...C9)
+    const headerRow = document.createElement("tr");
+    headerRow.classList.add("header-row");
+    let emptyTh = document.createElement("th");
+    emptyTh.classList.add("header-cell");
+    headerRow.appendChild(emptyTh);
+    for (let c = 1; c <= 9; c++) {
+      let th = document.createElement("th");
+      th.classList.add("header-cell");
+      th.textContent = "C" + c;
+      th.style.textAlign = "bottom";  // align text to bottom
+      headerRow.appendChild(th);
+    }
+    table.appendChild(headerRow);
+
+    // Create rows R1 to R9. Each row begins with a header cell (e.g., "R1") then 9 board cells.
+    for (let r = 1; r <= 9; r++) {
+      const row = document.createElement("tr");
+      let rowHeader = document.createElement("th");
+      rowHeader.classList.add("header-cell");
+      rowHeader.textContent = "R" + r;
+      rowHeader.style.textAlign = "right"; // align text to right
+      row.appendChild(rowHeader);
+      for (let c = 1; c <= 9; c++) {
+        const td = document.createElement("td");
+        if (c % 3 === 0) td.classList.add("block-right");
+        if (r % 3 === 0) td.classList.add("block-bottom");
+        const cellKey = `R${r}C${c}`;
+        td.setAttribute("data-cell-key", cellKey);
+        const cell = currentPuzzle[cellKey];
+        if (cell.value !== null && cell.value !== undefined) {
+          td.textContent = cell.value;
+        } else if (cell.candidates && cell.candidates.length > 0) {
+          let sorted = cell.candidates.slice().sort((a, b) => a - b);
+          td.textContent = "{" + sorted.join(", ") + "}";
+        } else {
+          td.textContent = "_";
+        }
+        td.addEventListener("mouseover", () => handleMouseOver(cellKey));
+        td.addEventListener("mouseout", () => handleMouseOut());
+        td.addEventListener("click", () => openModal(cellKey));
+        row.appendChild(td);
+      }
+      table.appendChild(row);
+    }
+    puzzleTableContainer.appendChild(table);
+    updateRemainingDigits();
+    checkSolved();
   }
 
 });

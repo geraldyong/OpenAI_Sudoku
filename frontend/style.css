@@ -1,4 +1,4 @@
-/* General styling with gradient background */
+/* General styling with a gradient background */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
@@ -52,10 +52,13 @@ body {
   padding: 20px;
 }
 
-/* Input panel styling */
+/* Submission container styling */
+#submission-container {
+  text-align: center;
+  margin-bottom: 10px;
+}
 #input-method {
   margin-bottom: 10px;
-  text-align: center;
 }
 #manual-input, #paste-input, #upload-input {
   margin: 10px auto;
@@ -86,12 +89,18 @@ body {
   font-size: 16px;
 }
 
-/* Button row: all buttons on one horizontal line */
-#button-row {
+/* Button containers styling */
+#button-container {
   text-align: center;
   margin: 10px 0;
 }
-#button-row button {
+#submission-buttons, #active-buttons {
+  display: inline-block;
+}
+#active-buttons.hidden, #submission-buttons.hidden {
+  display: none;
+}
+#button-container button {
   margin: 0 5px;
   padding: 8px 12px;
   font-size: 14px;
@@ -102,25 +111,26 @@ body {
   cursor: pointer;
   transition: background 0.2s;
 }
-#button-row button:disabled {
+#button-container button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
-#button-row button:hover:not(:disabled) {
+#button-container button:hover:not(:disabled) {
   background-color: #0056b3;
 }
 
 /* Puzzle state grid styling with grid references */
-/* The board is rendered as a 10x10 table:
-   - The first row and first column are header cells (with class .header-cell) that have no borders.
-   - The rest of the cells (<td>) show the puzzle values and have borders. */
+/* Render the board as a 10x10 table:
+   - The first row (header row) and the first column (row headers) are header cells.
+   - Header cells (th elements with the class header-cell) have no borders and a smaller font.
+   - Column headers are bottom-aligned; row headers are right-aligned.
+   - Board cells (td elements) have a 1px solid border, with thicker borders for block boundaries.
+*/
 #puzzle-table {
   border-collapse: collapse;
   margin: 0 auto;
   cursor: pointer;
 }
-
-/* Style for board cells */
 #puzzle-table td {
   border: 1px solid #333;
   width: 60px;
@@ -131,26 +141,19 @@ body {
   position: relative;
   transition: background 0.3s;
 }
-
-/* Style for header cells (both top row and left column) */
 #puzzle-table th.header-cell {
   border: none;
   background: none;
   font-size: 12px;
   padding: 5px;
 }
-
-/* Header row: first cell is empty; the rest (column headers) are bottom–aligned */
 #puzzle-table tr.header-row th.header-cell:not(:first-child) {
   text-align: bottom;
 }
-
-/* Left column header cells (for rows) are right–aligned */
 #puzzle-table tr:not(.header-row) th.header-cell {
   text-align: right;
 }
-
-/* 3x3 block borders for the board cells */
+/* 3x3 block borders for board cells */
 #puzzle-table td.block-right {
   border-right: 3px solid #000;
 }
